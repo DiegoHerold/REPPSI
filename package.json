@@ -4,7 +4,7 @@
   "description": "chat with node.js and mongodb",
   "main": "node ./bin/server.js",
   "scripts": {
-    "start": "./bin/server.js",
+    "start": "node ./bin/server.js",
     "build": "echo 'No build step necessary'",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
