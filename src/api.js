@@ -22,7 +22,7 @@ const authMiddleware = require('./middleware/authMiddleware');
 //page
 const PORT = process.env.PORT || 3000;
 // Middleware para servir arquivos estáticos da pasta view
-app.use(express.static(path.join(__dirname, '..', '..', 'Frontend', 'build')));
+// app.use(express.static(path.join(__dirname, '..', '..', 'Frontend', 'build')));
 
 
 // começo de rotas
@@ -41,9 +41,9 @@ app.use('/',  router.get('/sobre',(req,res, next)=>{
 }));
 // Configuração da rota para servir o index.html
 // Todas as outras rotas devem retornar o index.html do React
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '..', '..', 'Frontend', 'build', 'index.html'));
-});
+// app.get('*', (req, res) => {
+//     res.sendFile(path.join(__dirname, '..', '..', 'Frontend', 'build', 'index.html'));
+// });
 //
 //
 // Iniciar o servidor
