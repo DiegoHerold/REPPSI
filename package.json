@@ -5,6 +5,7 @@
   "main": "node ./bin/server.js",
   "scripts": {
     "start": "./bin/server.js",
+    "build": "echo 'No build step necessary'",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
