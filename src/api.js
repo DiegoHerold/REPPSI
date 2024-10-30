@@ -31,9 +31,14 @@ app.use(express.static(path.join(__dirname, '..', '..', 'Frontend', 'build')));
 // app.get('*', (req, res) => {
 //     res.sendFile(path.join(__dirname, '..', 'Frontend', 'build', 'index.html'));
 //   });
-
-
-
+app.use('/',  router.get('/sobre',(req,res, next)=>{
+    res.status(200).send({
+        "nome":"REPPSI",
+        "descrição": "Rede de Profissionais de Psicologia",
+        "versão": "1.0",
+        "autor": "Diego Herold"
+    })
+}));
 // Configuração da rota para servir o index.html
 // Todas as outras rotas devem retornar o index.html do React
 app.get('*', (req, res) => {
