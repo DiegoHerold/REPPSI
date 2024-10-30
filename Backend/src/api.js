@@ -1,9 +1,16 @@
 const express = require('express');
+const cors = require('cors'); 
 const path = require('path');
 const router = express.Router();
 const app = express();
 
-
+// Middleware CORS - permite que o frontend acesse a API
+app.use(cors({
+    origin: 'http://localhost:3000',  // Permita somente o frontend no localhost:3000
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],  // Métodos permitidos
+    allowedHeaders: ['Content-Type', 'Authorization']  // Cabeçalhos permitidos
+  }));
+  
 app.use(express.urlencoded({extended  : true}));
 app.use(express.json());
 
@@ -11,6 +18,7 @@ app.use(express.json());
 const token = require('./util/token');
 const salaController = require("./controller/salaController");
 const usuarioController = require("./controller/usuarioController");
+const authMiddleware = require('./middleware/authMiddleware');
 //page
 const PORT = process.env.PORT || 3000;
 // Middleware para servir arquivos estáticos da pasta view
@@ -19,33 +27,10 @@ app.use(express.static(path.join(__dirname, '..', '..', 'Frontend', 'build')));
 
 // começo de rotas
 
-// Qualquer rota que não seja da API deve servir o frontend
+
 // app.get('*', (req, res) => {
 //     res.sendFile(path.join(__dirname, '..', 'Frontend', 'build', 'index.html'));
 //   });
-
-
-
-// Configuração da rota para servir o index.html
-// Todas as outras rotas devem retornar o index.html do React
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '..', '..', 'Frontend', 'build', 'index.html'));
-});
-//
-//
-// Iniciar o servidor
-app.listen(PORT, () => {
-    console.log(`Servidor rodando na porta ${PORT}`);
-});
-//
-//
-//
-//sobre a API
-app.post('/api/cadastro', (req, res) => {
-    const { nome, email, senha } = req.body;
-    // Lógica para cadastrar o usuário na base de dados
-    res.status(201).send({ message: ' buuuuuum Usuário cadastrado com sucesso!' });
-  });
 
 app.use('/',  router.get('/sobre',(req,res, next)=>{
     res.status(200).send({
@@ -55,18 +40,53 @@ app.use('/',  router.get('/sobre',(req,res, next)=>{
         "autor": "Diego Herold"
     })
 }));
+// Configuração da rota para servir o index.html
+// // Qualquer rota que não seja da API deve servir o frontend
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', '..', 'Frontend', 'build', 'index.html'));
+});
+
+
+// Iniciar o servidor
+app.listen(PORT, () => {
+    console.log(`Servidor rodando na porta ${PORT}`);
+});
+//
+//
+//
+//sobre a API
+// app.use('/', (req, res) => {
+//     res.status(201).send({ message: '<h1>API REPPSI FUNCIONANDO</h1>' });
+//   });
+
+
 
 //Chat
 //entrar no chat
-app.use('/cadastrar',  router.post('/cadastrar', async(req,res, next)=>{
-    let resp = await usuarioController.entrar(req.body.nome,req.body.email, req.body.senha);
-    res.status(200).send(resp);
-}));
-app.use('/entrar', (req, res) => {
-    const { email, senha } = req.body;
-    // Lógica para cadastrar o usuário na base de dados
-    res.status(200).send({ message: `buuuuuum Usuário cadastrado com sucesso!  email:${email},senha:${senha}`});
-  });
+app.post('/cadastrar', usuarioController.registrarUsuario);
+// app.use('/cadastrar',  router.post('/cadastrar', async(req,res, next)=>{
+//     let resp = await usuarioController.registrarUsuario(req.body.nome,req.body.email, req.body.senha);
+//     res.status(200).send(resp);
+// }));
+// app.use('/entrar', (req, res) => {
+//     const { email, senha } = req.body;
+//     // Lógica para cadastrar o usuário na base de dados
+//     res.status(200).send({ message: `buuuuuum Usuário cadastrado com sucesso!  email:${email},senha:${senha}`});
+//   });
+app.post('/entrar', usuarioController.loginUsuario);
+app.use(authMiddleware);
+// app.get('/perfil', async (req, res) => {
+//     // Somente usuários autenticados terão acesso a essa rota
+//     const idUser = req.headers['iduser'];
+//     const userProfile = await usuarioController.buscarUsuario(idUser);
+//     res.status(200).send(userProfile);
+// });
+
+// // Mais rotas protegidas...
+// app.get('/consultas', async (req, res) => {
+//     // Somente usuários autenticados
+//     res.status(200).send('Consultas do usuário...');
+// });
 
 // sair do chat
 app.use('/sair', router.put('/sair', async (req, res) => {
