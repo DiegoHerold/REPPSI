@@ -1,25 +1,28 @@
-const usuarioModel = require('../model/usuarioModal');  // Corrija o caminho aqui
-const tokenUtil = require('../util/token');  // Suponho que você também tenha um utilitário de token
+const { ObjectId } = require('mongodb');
+const usuarioModel = require('../model/usuarioModal');  // Certifique-se de que o caminho está correto
+const tokenUtil = require('../util/token');
 
 const authMiddleware = async (req, res, next) => {
   try {
     const token = req.headers['authorization'];
+    console.log("Token recebido no middleware:", token);
 
     if (!token) {
       return res.status(401).send({ message: 'Token não fornecido' });
     }
 
-    // Verifica se o token é válido
-    const decodedToken = tokenUtil.returnIdUser(token);  // Assumindo que você tenha uma função para verificar tokens
+    // Extrair o ID do usuário do token
+    const decodedToken = await tokenUtil.returnIdUser(token);
+    console.log("ID de usuário decodificado:", decodedToken);
 
     if (!decodedToken) {
       return res.status(401).send({ message: 'Token inválido' });
     }
 
-    // Buscar usuário pelo email decodificado do token
-    console.log("decodedToken, o idUser: "+decodedToken)
-    const idUser = decodedToken;  // Assumindo que o email esteja no token
-    let usuario = await usuarioModel.buscarUsuario(idUser);  // Aqui usa o usuarioModel
+    // Converter `idUser` para `ObjectId`
+    const idUser = new ObjectId(decodedToken);  // Certifique-se de que `decodedToken` é uma string de 24 caracteres
+
+    const usuario = await usuarioModel.buscarUsuario(idUser);
 
     if (!usuario) {
       return res.status(404).send({ message: 'Usuário não encontrado' });
@@ -29,9 +32,9 @@ const authMiddleware = async (req, res, next) => {
     req.usuario = usuario;
     next();
   } catch (error) {
+    console.error("Erro no middleware de autenticação:", error);
     return res.status(500).send({ message: 'Erro no servidor', error });
   }
 };
 
 module.exports = authMiddleware;
-

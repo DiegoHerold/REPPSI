@@ -10,16 +10,30 @@ import {
   ModalCloseButton,
   Text,
   useDisclosure,
+  useToast
 } from '@chakra-ui/react';
 
-const LogoutModal = ({ isOpen, onClose }) => {
-  // Função para confirmar o logout
-  const handleLogout = () => {
-    // Implementar a lógica de logout, como limpar tokens e redirecionar para a página de login
-    console.log("Usuário deslogado");
-    onClose();
-  };
+import {  Navigate, useNavigate } from 'react-router-dom'; // Importa o hook useNavigate
+import UserServices from '../Services/UserServices';
+// Usado para exibir mensagens (feedback)
 
+const LogoutModal = ({ isOpen, onClose, onLogout }) => {
+  const toast = useToast(); // Agora o hook useToast está corretamente dentro do componente
+  const services = new UserServices;
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    // Ação de logout
+    toast({
+      title: 'Logout realizado com sucesso!',
+      status: 'success',
+      duration: 3000,
+      isClosable: true,
+    });
+    navigate("/login");
+    return <Navigate to="/login" />;
+    
+  };
   return (
     <Modal isOpen={isOpen} onClose={onClose} isCentered>
       <ModalOverlay />
@@ -38,7 +52,11 @@ const LogoutModal = ({ isOpen, onClose }) => {
           <Button variant="ghost" colorScheme="gray" mr={3} onClick={onClose}>
             Cancelar
           </Button>
-          <Button colorScheme="red" onClick={handleLogout}>
+          <Button colorScheme="red" onClick={() => {
+            services.logout();
+            // Função adicional que você quer executar
+            handleLogout();
+            }}>
             Sair
           </Button>
         </ModalFooter>

@@ -1,10 +1,9 @@
 import React from 'react';
-import { Box } from '@chakra-ui/react';
-import LoginSignupPage from '../components/login/login';
+import LoginPage from '../components/login/Login';
 
   const Login = () => {
     return (
-        <LoginSignupPage/>
+        <LoginPage/>
       );
   };
   

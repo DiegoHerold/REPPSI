@@ -1,39 +1,179 @@
-import React, { useState } from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import { ChakraProvider } from '@chakra-ui/react'; // Importando o ChakraProvider
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import PrivateRoute from './components/RotaPrivada/RotaPrivada';
+import Redirect from './components/RotaPrivada/Redirect';
 import Home from './Pages/Home';
 import Consultas from './Pages/Consultas';
 import Feed from './Pages/Feed';
 import PerfilCliente from './Pages/PerfilCliente';
 import PerfilPsicologo from './Pages/PerfilPsicologo';
-import SettingPage from './Pages/Configuracao'; // Corrigido o nome para SettingPage
+import SettingPage from './Pages/Configuracao';
 import Login from './Pages/Login';
-import { getTheme } from './theme'; // Função para obter o tema
+import Cadastro from './Pages/Cadastro';
 
 const App = () => {
-  const [theme, setTheme] = useState(getTheme('violet')); // Definindo o tema inicial como 'violet'
-
-  // Função para alterar o tema com base na escolha do usuário
-  const handleThemeChange = (newTheme) => {
-    setTheme(getTheme(newTheme)); // Atualiza o tema dinamicamente
-  };
-
   return (
-    <ChakraProvider theme={theme}>
-      <Router>
-        <Routes>
-          <Route path="/" element={<Home />} /> 
-          <Route path="/perfil/cliente" element={<PerfilCliente />} /> 
-          <Route path="/perfil/psicologo" element={<PerfilPsicologo />} /> 
-          <Route path="/consultas" element={<Consultas />} /> 
-          <Route path="/feed" element={<Feed />} /> 
-          <Route path="/configuracao" element={<SettingPage onChangeTheme={handleThemeChange} />} /> 
-          <Route path="/login" element={<Login />} /> 
-        </Routes>
-      </Router>
-    </ChakraProvider>
+    <Router>
+      <Routes>
+        {/* Redirecionamento inicial com base no papel */}
+        <Route path="/perfil" element={<Redirect />} />
+
+        {/* Rotas públicas */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/cadastro" element={<Cadastro />} />
+
+        {/* Rotas para Psicólogos */}
+        <Route 
+          path="/perfil/psicologo" 
+          element={
+            <PrivateRoute role="psicologo">
+              <PerfilPsicologo />
+            </PrivateRoute>
+          } 
+        />
+
+        {/* Rotas para Pacientes */}
+        <Route 
+          path="/perfil/cliente" 
+          element={
+            <PrivateRoute role="paciente">
+              <PerfilCliente />
+            </PrivateRoute>
+          } 
+        />
+        <Route 
+          path="/home" 
+          element={
+            <PrivateRoute role={localStorage.getItem('role')}>
+              <Home />
+            </PrivateRoute>
+          } 
+        />
+        <Route 
+          path="/consultas" 
+          element={
+            <PrivateRoute role={localStorage.getItem('role')}>
+              <Consultas />
+            </PrivateRoute>
+          } 
+        />
+        <Route 
+          path="/feed" 
+          element={
+            <PrivateRoute role={localStorage.getItem('role')}>
+              <Feed/>
+            </PrivateRoute>
+          } 
+        />
+
+        {/* Configuração acessível a ambos os papéis */}
+        <Route 
+          path="/configuracao" 
+          element={
+            <PrivateRoute role={localStorage.getItem('role')}>
+              <SettingPage />
+            </PrivateRoute>
+          } 
+        />
+      </Routes>
+    </Router>
   );
 };
 
 export default App;
 
+
+
+
+
+// import React, { useState } from 'react';
+// import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+// // import ProtectedRoutes from './Routes/ProtectedRoutes'
+// import PrivateRoute from './components/RotaPrivada/RotaPrivada'
+// //Caminhos da Pages
+// import Home from './Pages/Home';
+// import Consultas from './Pages/Consultas';
+// import Feed from './Pages/Feed';
+// import PerfilCliente from './Pages/PerfilCliente';
+// import PerfilPsicologo from './Pages/PerfilPsicologo';
+// import SettingPage from './Pages/Configuracao';
+// import Login from './Pages/Login';
+// import Cadastro from './Pages/Cadastro';
+// import { getTheme } from './theme';
+
+
+// const App= () => {
+//   const [theme, setTheme] = useState(getTheme('violet'));
+
+//   const handleThemeChange = (newTheme) => {
+//     setTheme(getTheme(newTheme));
+//   };
+
+//   return (
+//       <Router>
+//         <Routes>
+//           {/* Rotas públicas*/}
+//           <Route path="/login" element={<Login />} />
+//           <Route path="/cadastro" element={<Cadastro />} />
+          
+//           {/* Rotas protegidas */}
+         
+//           <Route 
+//             path="/home" 
+//             element={
+//               <PrivateRoute>
+//                 <Home />
+//                 </PrivateRoute>
+//             } 
+//           />
+//           <Route 
+//             path="/perfil/cliente" 
+//             element={
+//               <PrivateRoute>
+//                     <PerfilCliente />
+//                 </PrivateRoute>
+//             } 
+//           />
+          
+//           <Route 
+//             path="/perfil/psicologo" 
+//             element={
+//               <PrivateRoute>
+//                     <PerfilPsicologo />
+//                 </PrivateRoute>
+//             } 
+//           />
+//           <Route 
+//             path="/consultas" 
+//             element={
+//               <PrivateRoute>
+//                   <Consultas />
+//                   </PrivateRoute>
+//             } 
+//           />
+//           <Route 
+//             path="/feed" 
+//             element={
+//               <PrivateRoute>
+//                     <Feed />
+//                 </PrivateRoute>
+//             } 
+//           />
+//           <Route 
+//             path="/configuracao" 
+//             element={
+//                 <PrivateRoute>
+//                     <SettingPage onChangeTheme={handleThemeChange} />
+//                   </PrivateRoute>
+//             } 
+//           />
+          
+//           {/* Página inicial pública */}
+//           {/* <Route path="/" element={<Home />} /> */}
+        
+//         </Routes>
+//       </Router>
+//   );
+// };
+
+// export default App;

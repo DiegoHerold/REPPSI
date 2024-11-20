@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box, VStack, Text, Avatar, Badge, Icon, Grid, Wrap, HStack } from '@chakra-ui/react';
 import { StarIcon } from '@chakra-ui/icons';
 
@@ -7,21 +7,20 @@ const StarRating = ({ rating }) => {
   return (
     <HStack spacing="0.5" justify="center">
       {Array(5).fill('').map((_, i) => {
-        const fill = Math.min(Math.max(rating - i, 0), 1); // Calcula o quanto a estrela deve ser preenchida (0 a 1)
+        const fill = Math.min(Math.max(rating - i, 0), 1);
 
         return (
           <Box key={i} position="relative" display="inline-block">
-            <Icon as={StarIcon} color="gray.300" /> {/* Ícone de fundo da estrela em cinza */}
-
+            <Icon as={StarIcon} color="gray.300" />
             <Box
               position="absolute"
               top="0"
               left="0"
-              width={`${fill * 100}%`} // Define o preenchimento parcial da estrela
+              width={`${fill * 100}%`}
               height="100%"
               overflow="hidden"
             >
-              <Icon as={StarIcon} color="primary.500" /> {/* Ícone de estrela preenchido */}
+              <Icon as={StarIcon} color="primary.500" />
             </Box>
           </Box>
         );
@@ -30,149 +29,271 @@ const StarRating = ({ rating }) => {
   );
 };
 
-const PsychologistCard = ({ psychologist }) => {
+const PsychologistCard = ({ psychologist, onClick }) => {
+  if (!psychologist) {
+    return null;
+  }
+
   return (
-    <Box 
-      borderRadius="lg" 
-      overflow="hidden" 
-      boxShadow="lg" 
-      bg="white" 
-      p={6} 
+    <Box
+      borderRadius="lg"
+      overflow="hidden"
+      boxShadow="lg"
+      bg="white"
+      p={6}
       transition="all 0.3s"
       _hover={{ transform: 'scale(1.05)', boxShadow: 'xl' }}
-      maxW="350px" // Limita a largura máxima do card para manter o layout equilibrado
-      mx="auto" // Centraliza o card
+      maxW="350px"
+      mx="auto"
+      cursor="pointer"
+      onClick={() => onClick(psychologist._id)} // Quando clicado, chama a função passando o ID
     >
-      <VStack spacing={4} align="center"> {/* Centraliza todos os elementos */}
-        <Avatar size="2xl" src={psychologist.image} /> {/* Avatar do psicólogo centralizado e maior */}
-        
+      <VStack spacing={4} align="center">
+        <Avatar size="2xl" src={psychologist.perfil?.foto || 'https://via.placeholder.com/150'} />
         <Text fontWeight="bold" fontSize="xl" color="primary.500" textAlign="center">
-          {psychologist.name}
+          {psychologist.nome}
         </Text>
-
-        <Text color="secondary.200" fontSize="sm" textAlign="center" noOfLines={2}>
-          {psychologist.bio}
+        <Text color="gray.500" fontSize="sm" textAlign="center" noOfLines={2}>
+          {psychologist.perfil?.descricao || 'Sem descrição disponível'}
         </Text>
-
-        <HStack spacing={2} justify="center" align="center"> {/* Estrelas e rating juntos */}
-          <StarRating rating={psychologist.rating} /> {/* Componente de estrelas fracionadas */}
+        <HStack spacing={2} justify="center" align="center">
+          <StarRating rating={psychologist.avaliacoes?.avaliacaoMedia || 0} />
           <Text color="primary.500" fontWeight="bold" fontSize="md">
-            {psychologist.rating.toFixed(1)} {/* Mostra a nota com 1 casa decimal */}
+            {psychologist.avaliacoes?.avaliacaoMedia !== undefined
+              ? psychologist.avaliacoes.avaliacaoMedia.toFixed(1)
+              : '0.0'}
           </Text>
         </HStack>
+        <Badge colorScheme="purple" variant="solid">
+          R$ {psychologist.perfil?.valorConsulta || 'N/A'},00
+        </Badge>
 
-        <HStack spacing={4} justify="center">
-          <Badge colorScheme="purple" variant="solid">
-            {psychologist.price} {/* Exibe o preço */}
-          </Badge>
-          {/* Exibe ambos se for o caso, ou apenas online/presencial */}
-          {psychologist.online && psychologist.presencial ? (
-            <>
-              <Text color="success.500">Online</Text>
-              <Text color="error.500">Presencial</Text>
-            </>
-          ) : (
-            <Text color={psychologist.online ? "success.500" : "error.500"}>
-              {psychologist.online ? 'Online' : 'Presencial'}
+        <Text>
+          {psychologist.perfil?.metodologia?.includes('online') && (
+            <Text as="span" color="green.500" mr={2}>
+              Online
             </Text>
           )}
-        </HStack>
+          {psychologist.perfil?.metodologia?.includes('presencial') && (
+            <Text as="span" color="blue.500">
+              Presencial
+            </Text>
+          )}
+        </Text>
 
-        {/* Especializações exibidas como tags */}
-        <Wrap mt={2} justify="center"> 
-          {psychologist.specializations.map((specialization, index) => (
+        <Wrap mt={2} justify="center">
+          {psychologist.perfil?.especialidades?.map((specialization, index) => (
             <Badge key={index} colorScheme="teal" variant="solid">
               {specialization}
             </Badge>
-          ))}
+          )) || 'Sem especialidades'}
         </Wrap>
       </VStack>
     </Box>
   );
 };
 
-// Lista de psicólogos com sistema de grid responsivo
-const PsychologistList = () => {
-  const psychologists = [
-    {
-      id: 1,
-      name: 'Dra. Ana Silva',
-      rating: 4.9,
-      bio: 'Especialista em terapia cognitivo-comportamental. Atendimentos online e presenciais.',
-      price: 'R$ 150,00',
-      online: true,
-      presencial: true, // Agora pode ter ambos os tipos de atendimento
-      image: 'https://picsum.photos/200',
-      specializations: ['Terapia Cognitiva', 'Casais', 'Ansiedade'],
-    },
-    {
-      id: 2,
-      name: 'Dr. João Souza',
-      rating: 4.8,
-      bio: 'Foco em terapia familiar e psicologia infantil. Atendimentos presenciais.',
-      price: 'R$ 120,00',
-      online: false,
-      presencial: true,
-      image: 'https://picsum.photos/200',
-      specializations: ['Família', 'Infantil', 'Depressão'],
-    },
-    {
-      id: 3,
-      name: 'Dra. Jane Froste',
-      rating: 4.8,
-      bio: 'Especialista em terapia para crianças e adolescentes.',
-      price: 'R$ 120,00',
-      online: false,
-      presencial: true,
-      image: 'https://picsum.photos/200',
-      specializations: ['Infantil', 'Adolescentes', 'Terapia Comportamental'],
-    },
-    {
-      id: 4,
-      name: 'Dr. Albert',
-      rating: 4.8,
-      bio: 'Sou bastante carismático e sou doutor em terapia de casais.',
-      price: 'R$ 100,00',
-      online: true,
-      presencial: false,
-      image: 'https://picsum.photos/200',
-      specializations: ['Casais', 'Terapia Sistêmica', 'Comunicação'],
-    },
-    {
-      id: 5,
-      name: 'Dra. Laura Mendes',
-      rating: 4.7,
-      bio: 'Experiência com traumas e distúrbios alimentares. Atendimento online.',
-      price: 'R$ 130,00',
-      online: true,
-      presencial: true,
-      image: 'https://picsum.photos/200',
-      specializations: ['Traumas', 'Distúrbios Alimentares', 'Mindfulness'],
-    },
-    {
-      id: 6,
-      name: 'Dr. Pedro Lima',
-      rating: 4.6,
-      bio: 'Psicologia infantil e aconselhamento para pais.',
-      price: 'R$ 110,00',
-      online: false,
-      presencial: true,
-      image: 'https://picsum.photos/200',
-      specializations: ['Infantil', 'Aconselhamento', 'Comportamental'],
-    },
-  ];
+const PsychologistList = ({ filters, onCardClick  }) => {
+  const [psychologists, setPsychologists] = useState([]); // Estado para armazenar os psicólogos
+
+  const fetchPsychologists = async () => {
+    try {
+      const url = "http://localhost:5000/usuario/filtrar";
+
+      // Adapta os filtros para garantir que `valorMin` e `valorMax` estejam no formato correto
+      const adaptedFilters = {
+        ...filters,
+        valorMin: filters?.valorMin || 0,
+        valorMax: filters?.valorMax || 500,
+      };
+
+      const response = await fetch(url, {
+        method: 'POST', // Mudado para POST para enviar o JSON no corpo da requisição
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(adaptedFilters), // Enviando os filtros no corpo
+      });
+
+      if (!response.ok) {
+        throw new Error('Erro ao buscar os dados da API');
+      }
+
+      const data = await response.json();
+      setPsychologists(data); // Define os psicólogos no estado
+    } catch (error) {
+      console.error('Erro ao buscar psicólogos:', error.message);
+      setPsychologists([]); // Garante que a lista esteja vazia em caso de erro
+    }
+  };
+
+  // Atualiza a lista sempre que os filtros mudarem
+  useEffect(() => {
+    fetchPsychologists();
+  }, [filters]);
 
   return (
     <Grid
-      templateColumns={{ base: "repeat(1, 1fr)", sm: "repeat(1, 1fr)", md: "repeat(2, 1fr)",lg: "repeat(3, 1fr)",xl: "repeat(4, 1fr)"}} // Responsivo: 1 coluna para telas pequenas, 2 para médias, 3 para grandes
-      gap={6} // Espaçamento entre os cards
+      templateColumns={{ base: "repeat(1, 1fr)", sm: "repeat(1, 1fr)", md: "repeat(2, 1fr)", lg: "repeat(3, 1fr)", xl: "repeat(4, 1fr)" }}
+      gap={6}
       mt={5}
     >
-      {psychologists.map(psychologist => (
-        <PsychologistCard key={psychologist.id} psychologist={psychologist} />
+      {psychologists.map((psychologist) => (
+        <PsychologistCard 
+        key={psychologist._id} 
+        psychologist={psychologist} 
+        onClick={onCardClick} // Passa a função de clique como prop
+        />
       ))}
     </Grid>
   );
 };
 
 export default PsychologistList;
+
+// import React, { useEffect, useState } from 'react';
+// import { Box, VStack, Text, Avatar, Badge, Icon, Grid, Wrap, HStack } from '@chakra-ui/react';
+// import { StarIcon } from '@chakra-ui/icons';
+
+// // Função para criar estrelas preenchidas de acordo com o rating fracionado
+// const StarRating = ({ rating }) => {
+//   return (
+//     <HStack spacing="0.5" justify="center">
+//       {Array(5).fill('').map((_, i) => {
+//         const fill = Math.min(Math.max(rating - i, 0), 1);
+
+//         return (
+//           <Box key={i} position="relative" display="inline-block">
+//             <Icon as={StarIcon} color="gray.300" />
+//             <Box
+//               position="absolute"
+//               top="0"
+//               left="0"
+//               width={`${fill * 100}%`}
+//               height="100%"
+//               overflow="hidden"
+//             >
+//               <Icon as={StarIcon} color="primary.500" />
+//             </Box>
+//           </Box>
+//         );
+//       })}
+//     </HStack>
+//   );
+// };
+
+// const PsychologistCard = ({ psychologist }) => {
+//   if (!psychologist) {
+//     return null;
+//   }
+
+//   return (
+//     <Box
+//       borderRadius="lg"
+//       overflow="hidden"
+//       boxShadow="lg"
+//       bg="white"
+//       p={6}
+//       transition="all 0.3s"
+//       _hover={{ transform: 'scale(1.05)', boxShadow: 'xl' }}
+//       maxW="350px"
+//       mx="auto"
+//     >
+//       <VStack spacing={4} align="center">
+//         <Avatar size="2xl" src={psychologist.perfil?.foto || 'https://via.placeholder.com/150'} />
+//         <Text fontWeight="bold" fontSize="xl" color="primary.500" textAlign="center">
+//           {psychologist.nome}
+//         </Text>
+//         <Text color="gray.500" fontSize="sm" textAlign="center" noOfLines={2}>
+//           {psychologist.perfil?.descricao || 'Sem descrição disponível'}
+//         </Text>
+//         <HStack spacing={2} justify="center" align="center">
+//           <StarRating rating={psychologist.avaliacoes?.avaliacaoMedia || 0} />
+//           <Text color="primary.500" fontWeight="bold" fontSize="md">
+//             {psychologist.avaliacoes?.avaliacaoMedia !== undefined
+//               ? psychologist.avaliacoes.avaliacaoMedia.toFixed(1)
+//               : '0.0'}
+//           </Text>
+//         </HStack>
+//         <Badge colorScheme="purple" variant="solid">
+//           R$ {psychologist.perfil?.valorConsulta || 'N/A'},00
+//         </Badge>
+
+//         <Text>
+//           {psychologist.perfil?.metodologia?.includes('online') && (
+//             <Text as="span" color="green.500" mr={2}>
+//               Online
+//             </Text>
+//           )}
+//           {psychologist.perfil?.metodologia?.includes('presencial') && (
+//             <Text as="span" color="blue.500">
+//               Presencial
+//             </Text>
+//           )}
+//         </Text>
+
+//         <Wrap mt={2} justify="center">
+//           {psychologist.perfil?.especialidades?.map((specialization, index) => (
+//             <Badge key={index} colorScheme="teal" variant="solid">
+//               {specialization}
+//             </Badge>
+//           )) || 'Sem especialidades'}
+//         </Wrap>
+//       </VStack>
+//     </Box>
+//   );
+// };
+
+// const PsychologistList = ({ filters }) => {
+//   const [psychologists, setPsychologists] = useState([]); // Estado para armazenar os psicólogos
+
+//   const fetchPsychologists = async () => {
+//     try {
+//       const url = "http://localhost:5000/usuario/filtrar";
+
+//       // Adapta os filtros para garantir que `valorMin` e `valorMax` estejam no formato correto
+//       const adaptedFilters = {
+//         ...filters,
+//         valorMin: filters?.valorMin || 0,
+//         valorMax: filters?.valorMax || 500,
+//       };
+
+//       const response = await fetch(url, {
+//         method: 'POST', // Mudado para POST para enviar o JSON no corpo da requisição
+//         headers: {
+//           'Content-Type': 'application/json',
+//         },
+//         body: JSON.stringify(adaptedFilters), // Enviando os filtros no corpo
+//       });
+
+//       if (!response.ok) {
+//         throw new Error('Erro ao buscar os dados da API');
+//       }
+
+//       const data = await response.json();
+//       setPsychologists(data); // Define os psicólogos no estado
+//     } catch (error) {
+//       console.error('Erro ao buscar psicólogos:', error.message);
+//       setPsychologists([]); // Garante que a lista esteja vazia em caso de erro
+//     }
+//   };
+
+//   // Atualiza a lista sempre que os filtros mudarem
+//   useEffect(() => {
+//     fetchPsychologists();
+//   }, [filters]);
+
+//   return (
+//     <Grid
+//       templateColumns={{ base: "repeat(1, 1fr)", sm: "repeat(1, 1fr)", md: "repeat(2, 1fr)", lg: "repeat(3, 1fr)", xl: "repeat(4, 1fr)" }}
+//       gap={6}
+//       mt={5}
+//     >
+//       {psychologists.map((psychologist) => (
+//         <PsychologistCard key={psychologist._id} psychologist={psychologist} />
+//       ))}
+//     </Grid>
+//   );
+// };
+
+// export default PsychologistList;

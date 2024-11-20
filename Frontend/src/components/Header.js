@@ -13,11 +13,13 @@ import {
   DrawerContent,
   DrawerCloseButton,
   Stack,
-  useDisclosure,
-  Text
+  useDisclosure
 } from '@chakra-ui/react';
 import { HamburgerIcon } from '@chakra-ui/icons';
-import LogoutModal from './ModalLogout'; // Importa o modal de logout
+import LogoutModal from './ModalLogout'; // Importa 
+
+
+import logo from '../img/LogoREPPSI.png';
 
 function Header() {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -27,9 +29,11 @@ function Header() {
   const navigate = useNavigate();
 
   const Home = () => {
-    navigate('/');
+    navigate('/home');
   };
-  
+  const Perfil = () => {
+    navigate('/perfil');
+  };
   const PerfilC = () => {
     navigate('/perfil/cliente');
   };
@@ -45,6 +49,8 @@ function Header() {
   const configura = () => {
     navigate('/configuracao');
   };
+
+  
 
   return (
     <>
@@ -63,17 +69,16 @@ function Header() {
           />
 
           {/* Título do Header */}
-          <Flex alignItems="center" onClick={Home} className="pointer">
-            <Avatar src="/path-to-profile-pic.jpg" size="sm" mr={4} ml='30'/>
-            <Text fontSize="lg" fontWeight="bold">
-              REPPSI
-            </Text>
-          </Flex>
+          <Box position="absolute" left="50%" transform="translateX(-50%)">
+            <Flex alignItems="center" onClick={Home} cursor="pointer">
+              <Avatar src={logo} size="md" />
+            </Flex>
+          </Box>
 
           {/* Avatar e Botão de Fechar Perfil */}
-          <Flex alignItems="center">
-            <Avatar name="Christian Nwamba" src="/path-to-profile-pic.jpg" className="pointer" _hover={{ bg: "primary.700" }}
-            onClick={PerfilC}/> 
+          <Flex alignItems="center" cursor="pointer">
+            <Avatar name="Christian Nwamba" src="/path-to-profile-pic.jpg"  _hover={{ bg: "primary.700" }}
+            onClick={Perfil}/> 
           </Flex>
         </Flex>
 
@@ -88,11 +93,8 @@ function Header() {
                 <Button variant="ghost" colorScheme="purple" onClick={Home}>
                   Home
                 </Button>
-                <Button variant="ghost" colorScheme="purple" onClick={PerfilC}>
+                <Button variant="ghost" colorScheme="purple" onClick={Perfil}>
                   Perfil
-                </Button>
-                <Button variant="ghost" colorScheme="purple" onClick={PerfilP}>
-                  Perfil Psicologo
                 </Button>
                 <Button variant="ghost" colorScheme="purple" onClick={HistóricoConsulta}>
                   Consultas
